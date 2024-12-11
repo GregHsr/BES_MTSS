@@ -5,20 +5,20 @@ Created on Wed Nov 20 15:12:11 2024
 
 @author: nturner
 """
-
+#%% IMPORTS
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.interpolate import interp1d
 
-# CONSTANTES
+#%% CONSTANTES
 
 Re=23000
 U_inlet=13
 D=0.026
 
 
-# Load data - DONNEES PAPIERS COOPER 1993
+#%% Load data - DONNEES PAPIERS COOPER 1993
 data_rd1_cw_uv = np.loadtxt("exp_data_rD_1/ij2lr-10-cw-uv.dat")
 data_rd1_cw_vv = np.loadtxt("exp_data_rD_1/ij2lr-10-cw-vv.dat")
 data_rd1_sw_mu = np.loadtxt("exp_data_rD_1/ij2lr-10-sw-mu.dat")
@@ -31,7 +31,7 @@ data_rd3_sw_uu = np.loadtxt("exp_data_rD_3/ij2lr-30-sw-uu.dat")
 data_nu=np.loadtxt("exp_data_nu/ij2lr-nuss.dat")
 
 
-# Read data - EXPERIMENTALES STAR-CCM - QUESTION 2
+#%% Read data - EXPERIMENTALES STAR-CCM - QUESTION 2
 yparoi_starccm_q2=pd.read_csv("heat_transfert.csv", usecols=[0], header=None, dtype=float,skiprows=1)
 nu_starccm_q2=pd.read_csv("heat_transfert.csv", usecols=[1], header=None, dtype=float,skiprows=1)
 
@@ -44,7 +44,7 @@ mean_vel_d3_q2=pd.read_csv("mean_vel_d3_q2.csv", usecols=[1], header=None, dtype
 k_d3_q2=pd.read_csv("k_d3_q2.csv", usecols=[1], header=None, dtype=float,skiprows=1)
 
 
-# Load data - EXPERIMENTALES Fluent k-eps vs. k-eps enhanced - Question 5
+#%% Load data - EXPERIMENTALES Fluent k-eps vs. k-eps enhanced - Question 5
 fluent_nusselt= np.loadtxt("nusselt_fluent.csv", skiprows=4, max_rows=139)
 fluent_enhanced_nusselt= np.loadtxt("nusselt_enhanced.csv", skiprows=4, max_rows=139)
 
@@ -60,13 +60,13 @@ fluent_k_rd3= np.loadtxt("k_rd3_fluent.csv", skiprows=4, max_rows=180)
 fluent_enhanced_meanvel_rd3= np.loadtxt("mean_vel_rd3_enhanced.csv", skiprows=4, max_rows=180)
 fluent_enhanced_k_rd3= np.loadtxt("k_rd3_enhanced.csv", skiprows=4, max_rows=180)
 
-# Load data - EXPERIMENTALES Star-CCM non-établi - Question 5
+#%% Load data - EXPERIMENTALES Star-CCM non-établi - Question 5
 keps_none_x=tab=pd.read_csv("star_keps_nonetab.csv", usecols=[0], header=None, dtype=float,skiprows=1)
 keps_none_nu=pd.read_csv("star_keps_nonetab.csv", usecols=[1], header=None, dtype=float,skiprows=1)
 
 
 
-# Read data - COOPER 1993
+#%% Read data - COOPER 1993
 yd_cw=data_rd1_cw_uv[:,0]
 yd_sw=data_rd1_sw_mu[:,0]
 rd=data_nu[:,0]
@@ -99,7 +99,7 @@ nu_Re=data_nu[:,1]
 
 # FAIRE INTERPOLATION !!!!
 
-# Interpolate uu and vv data to a common y/D grid
+#%% Interpolate uu and vv data to a common y/D grid
 common_yD = np.linspace(min(yd_cw.min(), yd_sw.min()), max(yd_cw.max(), yd_sw.max()), 40)
 
 interp_uu_1 = interp1d(yd_sw, uu_Ub2_1, kind='linear', bounds_error = False)
@@ -108,7 +108,7 @@ interp_vv_1 = interp1d(yd_cw, vv_Ub2_1, kind='linear', bounds_error = False)
 uu_interpolated_1 = interp_uu_1(common_yD)
 vv_interpolated_1 = interp_vv_1(common_yD)
 
-# Compute k_1
+#%% Compute k_1
 k_1 = 0.5 * uu_interpolated_1 + vv_interpolated_1
 
 
@@ -169,7 +169,7 @@ k_3 = 0.5 * uu_interpolated_3 + vv_interpolated_3
 
 
 ###################################################### QUESTION 2 - STAR-CCM
-# Nusselt 
+#%% Nusselt 
 plt.figure(figsize=(10, 6))
 plt.plot(rd, nu_Re, label="Cooper 1993", marker='o')
 plt.scatter(yparoi_starccm_q2/0.0265, nu_starccm_q2/(Re**(0.7)), label="Star-CCM k_eps V2F établi", marker='x', color='orange')
@@ -241,7 +241,7 @@ plt.grid(True, linestyle='--', alpha=0.7)
 #plt.grid(True, linestyle='--', alpha=0.7)
 
 ## r/D = 1
-# Mean Velocity
+#%% Mean Velocity
 plt.figure(figsize=(10, 6))
 plt.scatter(fluent_meanvel_rd1[:,0]/D+8, fluent_meanvel_rd1[:,1]/U_inlet, label="k-eps", marker='o')
 plt.scatter(fluent_enhanced_meanvel_rd1[:,0]/D+8, fluent_enhanced_meanvel_rd1[:,1]/U_inlet, label="k-eps enhanced wall", marker='x', color='orange')
@@ -252,10 +252,11 @@ plt.legend(fontsize=12)
 plt.grid(True, linestyle='--', alpha=0.7)
 
 
-## Turbulent kinetic energy
+#%%Turbulent kinetic energy
 plt.figure(figsize=(10, 6))
-plt.scatter(fluent_k_rd1[:,0]/D+8, fluent_k_rd1[:,1]/(U_inlet**2), label="k-eps", marker='o', linestyle='-', color='b')
-plt.scatter(fluent_enhanced_k_rd1[:,0]/D+8, fluent_enhanced_k_rd1[:,1]/(U_inlet**2), label="k-eps enhanced wall", marker='x', color='orange')
+plt.scatter(fluent_k_rd1[:90,0]/D+8, fluent_k_rd1[:90,1]/(U_inlet**2), label="k-eps", marker='o', linestyle='-', color='b')
+plt.scatter(fluent_enhanced_k_rd1[:90,0]/D+8, fluent_enhanced_k_rd1[:90,1]/(U_inlet**2), label="k-eps enhanced wall", marker='x', color='orange')
+plt.scatter(-pos_q2/D+8, k_q2/(U_inlet**2), label="Star-CCM k-eps établi", marker='P', color='black')
 plt.title("r/D = 1", fontsize=16, fontweight='bold')
 plt.xlabel("y/D", fontsize=12)
 plt.ylabel("k normalisé", fontsize=12)
@@ -265,7 +266,7 @@ plt.grid(True, linestyle='--', alpha=0.7)
 
 
 ## r/D = 3
-# Mean Velocity
+#%% Mean Velocity
 plt.figure(figsize=(10, 6))
 plt.scatter(fluent_meanvel_rd3[:,0]/D+8, fluent_meanvel_rd3[:,1]/U_inlet, label="k-eps", marker='o')
 plt.scatter(fluent_meanvel_rd3[:,0]/D+8, fluent_enhanced_meanvel_rd3[:,1]/U_inlet, label="k-eps enhanced wall", marker='x', color='orange')
@@ -275,7 +276,7 @@ plt.ylabel("u/Ub", fontsize=12)
 plt.legend(fontsize=12)
 plt.grid(True, linestyle='--', alpha=0.7)
 
-# Turbulent kinetic energy
+#%% Turbulent kinetic energy
 plt.figure(figsize=(10, 6))
 plt.scatter(fluent_k_rd3[:,0]/D+8, fluent_k_rd3[:,1]/(U_inlet**2), label="k-eps", marker='o', linestyle='-', color='b')
 plt.scatter(fluent_enhanced_k_rd3[:,0]/D+8, fluent_enhanced_k_rd3[:,1]/(U_inlet**2), label="k-eps enhanced wall", marker='x', color='orange')
@@ -286,6 +287,6 @@ plt.legend(fontsize=12)
 plt.grid(True, linestyle='--', alpha=0.7)
 
 
-# Affichage
+#%% Affichage
 plt.tight_layout()
 plt.show()
